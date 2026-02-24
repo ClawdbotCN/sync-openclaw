@@ -18,6 +18,8 @@ jobs:
           dst_key: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
           dst_token: ${{ secrets.GITEE_TOKEN }}
           static_list: "openclaw"
+          # 只同步主分支，不搬运所有分支，速度提升显著
+          mappings: "main=>main"
           force_update: true
           debug: true
           clone_style: "https"
