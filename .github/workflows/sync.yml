@@ -13,18 +13,17 @@ jobs:
         env:
           GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
         run: |
-          # 1. 配置 Git 身份
           git config --global user.email "lanxidj@vip.qq.com"
           git config --global user.name "OpenclawCN"
 
           # ----------------------------------------
-          # 处理第一个仓库: openclaw
+          # 处理: openclaw
           # ----------------------------------------
           echo "正在处理 openclaw..."
           git clone --depth 1 https://github.com/openclaw/openclaw.git temp_openclaw
           cd temp_openclaw
-          # 【核心变动】直接把 Token 放在原本用户名的地方，后面加个冒号
-          git remote add gitee "https://${GITEE_TOKEN}:@gitee.com/openclawcn/openclaw.git"
+          # 使用英文ID配合Token
+          git remote add gitee "https://openclawcn:${GITEE_TOKEN}@gitee.com/openclawcn/openclaw.git"
           
           CUR_BRANCH=$(git branch --show-current)
           git push -f gitee $CUR_BRANCH:main || git push -f gitee $CUR_BRANCH:master
@@ -32,13 +31,13 @@ jobs:
           rm -rf temp_openclaw
 
           # ----------------------------------------
-          # 处理第二个仓库: skills
+          # 处理: skills
           # ----------------------------------------
           echo "正在处理 skills..."
           git clone --depth 1 https://github.com/openclaw/skills.git temp_skills
           cd temp_skills
-          # 【核心变动】同上
-          git remote add gitee "https://${GITEE_TOKEN}:@gitee.com/openclawcn/skills.git"
+          # 使用英文ID配合Token
+          git remote add gitee "https://openclawcn:${GITEE_TOKEN}@gitee.com/openclawcn/skills.git"
           
           CUR_BRANCH=$(git branch --show-current)
           git push -f gitee $CUR_BRANCH:main || git push -f gitee $CUR_BRANCH:master
