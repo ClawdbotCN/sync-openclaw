@@ -23,13 +23,13 @@ jobs:
           echo "正在处理 openclaw..."
           git clone --depth 1 https://github.com/openclaw/openclaw.git temp_openclaw
           cd temp_openclaw
-          git remote add gitee "https://x-access-token:${GITEE_TOKEN}@gitee.com/openclawcn/openclaw.git"
-          # 自动识别分支并推送
+          # 【核心变动】直接把 Token 放在原本用户名的地方，后面加个冒号
+          git remote add gitee "https://${GITEE_TOKEN}:@gitee.com/openclawcn/openclaw.git"
+          
           CUR_BRANCH=$(git branch --show-current)
           git push -f gitee $CUR_BRANCH:main || git push -f gitee $CUR_BRANCH:master
           cd ..
           rm -rf temp_openclaw
-          echo "openclaw 同步完成！"
 
           # ----------------------------------------
           # 处理第二个仓库: skills
@@ -37,9 +37,11 @@ jobs:
           echo "正在处理 skills..."
           git clone --depth 1 https://github.com/openclaw/skills.git temp_skills
           cd temp_skills
-          git remote add gitee "https://x-access-token:${GITEE_TOKEN}@gitee.com/openclawcn/skills.git"
+          # 【核心变动】同上
+          git remote add gitee "https://${GITEE_TOKEN}:@gitee.com/openclawcn/skills.git"
+          
           CUR_BRANCH=$(git branch --show-current)
           git push -f gitee $CUR_BRANCH:main || git push -f gitee $CUR_BRANCH:master
           cd ..
           rm -rf temp_skills
-          echo "skills 同步完成！"
+          echo "全部同步完成！"
