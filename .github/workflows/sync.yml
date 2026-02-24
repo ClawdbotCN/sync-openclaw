@@ -26,3 +26,4 @@ jobs:
           clone_style: "https"
           depth: 1  # 核心：只同步最近一次提交，体积瞬间缩小
           timeout: '2h' # 虽然缩小了，时间还是给足
+          lfs: true                # 核心：开启 LFS 支持，防止大文件卡死
