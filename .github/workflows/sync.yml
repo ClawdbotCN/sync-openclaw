@@ -16,14 +16,26 @@ jobs:
           git config --global user.email "lanxidj@vip.qq.com"
           git config --global user.name "OpenclawCN"
 
+          # ==========================================
+          # 绝杀技：通过 API 自动获取 Token 所属的真实用户名
+          # ==========================================
+          echo "正在验证 Token 并获取准确用户名..."
+          GITEE_USER=$(curl -s "https://gitee.com/api/v5/user?access_token=${GITEE_TOKEN}" | jq -r .login)
+          
+          if [ "$GITEE_USER" == "null" ] || [ -z "$GITEE_USER" ]; then
+            echo "❌ Token 验证失败！请检查 Token 是否有效。"
+            exit 1
+          fi
+          echo "✅ 成功获取！当前 Token 的真实主人是: $GITEE_USER"
+
           # ----------------------------------------
           # 处理: openclaw
           # ----------------------------------------
           echo "正在处理 openclaw..."
           git clone --depth 1 https://github.com/openclaw/openclaw.git temp_openclaw
           cd temp_openclaw
-          # 使用英文ID配合Token
-          git remote add gitee "https://openclawcn:${GITEE_TOKEN}@gitee.com/openclawcn/openclaw.git"
+          # 使用自动获取到的真实用户名
+          git remote add gitee "https://${GITEE_USER}:${GITEE_TOKEN}@gitee.com/openclawcn/openclaw.git"
           
           CUR_BRANCH=$(git branch --show-current)
           git push -f gitee $CUR_BRANCH:main || git push -f gitee $CUR_BRANCH:master
@@ -36,8 +48,8 @@ jobs:
           echo "正在处理 skills..."
           git clone --depth 1 https://github.com/openclaw/skills.git temp_skills
           cd temp_skills
-          # 使用英文ID配合Token
-          git remote add gitee "https://openclawcn:${GITEE_TOKEN}@gitee.com/openclawcn/skills.git"
+          # 使用自动获取到的真实用户名
+          git remote add gitee "https://${GITEE_USER}:${GITEE_TOKEN}@gitee.com/openclawcn/skills.git"
           
           CUR_BRANCH=$(git branch --show-current)
           git push -f gitee $CUR_BRANCH:main || git push -f gitee $CUR_BRANCH:master
