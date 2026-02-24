@@ -2,35 +2,38 @@ name: Auto Sync to Gitee
 
 on:
   schedule:
-    # 每天北京时间早上 8 点自动同步一次 (UTC 0:00)
     - cron: '0 0 * * *'
-  workflow_dispatch: # 允许你随时手动点击运行
+  workflow_dispatch:
 
 jobs:
   sync-repo:
     runs-on: ubuntu-latest
     steps:
-      - name: Mirror the GitHub repo to Gitee
-        uses: Yikun/hub-mirror-action@master
-        with:
-          # 1. 源端：GitHub 的组织/用户名
-          src: github/openclaw
-          
-          # 2. 目标端：你的 Gitee 用户名
-          dst: gitee/openclawcn
-          
-          # 3. 鉴权：只需 Token 即可走 HTTPS 协议，避开容易卡死的 SSH (dst_key)
-          dst_token: ${{ secrets.GITEE_TOKEN }}
-          
-          # 4. 仓库列表：多个仓库用英文逗号分隔，Gitee 端会自动创建同名库
-          static_list: "openclaw,skills"
-          
-          # 5. 分支映射：强制 main 对 main，防止分支混乱
-          mappings: "main=>main"
-          
-          # 6. 性能优化配置
-          force_update: true     # 强制覆盖，解决版本冲突
-          clone_style: "https"   # 强制使用 HTTPS 模式同步
-          lfs: false             # 关闭 LFS 搬运，避免大文件卡死
-          debug: true            # 开启调试日志，出问题一眼能看到
-          timeout: '1h'          # 给够 1 小时，足够两个库同步完
+      - name: Sync OpenClaw and Skills to Gitee
+        env:
+          # 使用你现有的 Gitee Token
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+        run: |
+          # 配置 Git 身份
+          git config --global user.email "lanxidj@vip.qq.com"
+          git config --global user.name "OpenclawCN"
+
+          # 循环处理两个仓库
+          for repo in openclaw skills; do
+            echo "Processing $repo..."
+            
+            # 1. 克隆 GitHub 源码 (使用 --depth 1 提速)
+            git clone --depth 1 https://github.com/openclaw/$repo.git $repo
+            
+            cd $repo
+            
+            # 2. 强制使用 HTTPS + Token 格式添加远程地址 (这步最关键，彻底避开 SSH)
+            git remote add gitee https://萌浪兔:${GITEE_TOKEN}@gitee.com/openclawcn/$repo.git
+            
+            # 3. 强制推送到 Gitee 的 main 分支
+            # 既然你本地手动推的是 master:main，这里我们也保持一致
+            git push -f gitee main || git push -f gitee master:main
+            
+            cd ..
+            echo "$repo sync completed!"
+          done
