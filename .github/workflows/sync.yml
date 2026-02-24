@@ -21,6 +21,6 @@ jobs:
           force_update: true
           debug: true
           clone_style: "https"
-          # 注意：删除了不支持的 depth 参数
+          depth: 1  # 核心：只同步最近一次提交
           timeout: '3h'       # 既然 1.5 小时不够，我们直接给到 3 小时上限
           lfs: true           # 开启大文件支持
