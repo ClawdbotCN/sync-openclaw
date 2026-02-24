@@ -13,8 +13,8 @@ jobs:
       - name: Mirror the GitHub repo to Gitee
         uses: Yikun/hub-mirror-action@master
         with:
-          # 1. 原项目的 GitHub 用户名。如果是要同步 OpenClaw，请确认原作者的 ID
-          src: github/OpenClaw
+          # 1. 原项目的 GitHub 用户名。如果是要同步 openclaw，请确认原作者的 ID
+          src: github/openclaw
           # 2. 你的 Gitee 用户名，这里填写 OpenclawCN
           dst: gitee/OpenclawCN
           dst_key: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
