@@ -2,9 +2,9 @@ name: Auto Sync to Gitee
 
 on:
   schedule:
-    # 每天北京时间早上 8 点自动同步一次
+    # 每天北京时间早上 8 点自动同步一次 (UTC 0:00)
     - cron: '0 0 * * *'
-  workflow_dispatch: # 允许手动点击运行
+  workflow_dispatch: # 允许你随时手动点击运行
 
 jobs:
   sync-repo:
@@ -13,16 +13,24 @@ jobs:
       - name: Mirror the GitHub repo to Gitee
         uses: Yikun/hub-mirror-action@master
         with:
+          # 1. 源端：GitHub 的组织/用户名
           src: github/openclaw
+          
+          # 2. 目标端：你的 Gitee 用户名
           dst: gitee/openclawcn
-          dst_key: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
+          
+          # 3. 鉴权：只需 Token 即可走 HTTPS 协议，避开容易卡死的 SSH (dst_key)
           dst_token: ${{ secrets.GITEE_TOKEN }}
-          static_list: "openclaw"
-          # 只同步主分支，不搬运所有分支，速度提升显著
+          
+          # 4. 仓库列表：多个仓库用英文逗号分隔，Gitee 端会自动创建同名库
+          static_list: "openclaw,skills"
+          
+          # 5. 分支映射：强制 main 对 main，防止分支混乱
           mappings: "main=>main"
-          force_update: true
-          debug: true
-          clone_style: "https"
-          #depth: 1  # 核心：只同步最近一次提交
-          timeout: '60m'       # 既然 1.5 小时不够，我们直接给到 3 小时上限
-          lfs: false           # 开启大文件支持
+          
+          # 6. 性能优化配置
+          force_update: true     # 强制覆盖，解决版本冲突
+          clone_style: "https"   # 强制使用 HTTPS 模式同步
+          lfs: false             # 关闭 LFS 搬运，避免大文件卡死
+          debug: true            # 开启调试日志，出问题一眼能看到
+          timeout: '1h'          # 给够 1 小时，足够两个库同步完
