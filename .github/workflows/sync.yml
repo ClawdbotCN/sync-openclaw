@@ -16,7 +16,7 @@ jobs:
           # 1. 原项目的 GitHub 用户名。如果是要同步 openclaw，请确认原作者的 ID
           src: github/openclaw
           # 2. 你的 Gitee 用户名，这里填写 OpenclawCN
-          dst: gitee.com/openclawcn
+          dst: gitee/openclawcn
           dst_key: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
           dst_token: ${{ secrets.GITEE_TOKEN }}
           # 3. 你想要同步的仓库名称。确认你的 Gitee 下已经建立了一个叫 OpenClaw 的空仓库
