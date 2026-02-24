@@ -16,9 +16,6 @@ jobs:
           git config --global user.email "lanxidj@vip.qq.com"
           git config --global user.name "OpenclawCN"
 
-          # ==========================================
-          # 绝杀技：通过 API 自动获取 Token 所属的真实用户名
-          # ==========================================
           echo "正在验证 Token 并获取准确用户名..."
           GITEE_USER=$(curl -s "https://gitee.com/api/v5/user?access_token=${GITEE_TOKEN}" | jq -r .login)
           
@@ -31,28 +28,35 @@ jobs:
           # ----------------------------------------
           # 处理: openclaw
           # ----------------------------------------
-          echo "正在处理 openclaw..."
-          git clone --depth 1 https://github.com/openclaw/openclaw.git temp_openclaw
+          echo "========================================"
+          echo "1. 正在全量克隆 openclaw (获取完整历史以便快速对账)..."
+          git clone https://github.com/openclaw/openclaw.git temp_openclaw
           cd temp_openclaw
-          # 使用自动获取到的真实用户名
+          
+          echo "2. 配置 Gitee 远程地址..."
           git remote add gitee "https://${GITEE_USER}:${GITEE_TOKEN}@gitee.com/openclawcn/openclaw.git"
           
+          echo "3. 开始向 Gitee 推送 openclaw..."
           CUR_BRANCH=$(git branch --show-current)
           git push -f gitee $CUR_BRANCH:main || git push -f gitee $CUR_BRANCH:master
           cd ..
           rm -rf temp_openclaw
+          echo "✅ openclaw 同步完成！"
 
           # ----------------------------------------
           # 处理: skills
           # ----------------------------------------
-          echo "正在处理 skills..."
-          git clone --depth 1 https://github.com/openclaw/skills.git temp_skills
+          echo "========================================"
+          echo "1. 正在全量克隆 skills (包含 10 万个文件的历史)..."
+          git clone https://github.com/openclaw/skills.git temp_skills
           cd temp_skills
-          # 使用自动获取到的真实用户名
+          
+          echo "2. 配置 Gitee 远程地址..."
           git remote add gitee "https://${GITEE_USER}:${GITEE_TOKEN}@gitee.com/openclawcn/skills.git"
           
+          echo "3. 开始向 Gitee 推送 skills..."
           CUR_BRANCH=$(git branch --show-current)
           git push -f gitee $CUR_BRANCH:main || git push -f gitee $CUR_BRANCH:master
           cd ..
           rm -rf temp_skills
-          echo "全部同步完成！"
+          echo "✅ skills 同步完成！"
