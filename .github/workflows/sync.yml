@@ -2,8 +2,9 @@ name: Auto Sync to Gitee
 
 on:
   schedule:
+    # 每天北京时间早上 8 点自动同步一次 (UTC 0:00)
     - cron: '0 0 * * *'
-  workflow_dispatch:
+  workflow_dispatch: # 允许手动点击运行
 
 jobs:
   sync-repo:
@@ -11,29 +12,37 @@ jobs:
     steps:
       - name: Sync OpenClaw and Skills to Gitee
         env:
-          # 使用你现有的 Gitee Token
+          # 从仓库配置中读取 Token
           GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
         run: |
-          # 配置 Git 身份
+          # 1. 配置 Git 身份
           git config --global user.email "lanxidj@vip.qq.com"
           git config --global user.name "OpenclawCN"
 
-          # 循环处理两个仓库
+          # 2. 循环处理仓库列表
           for repo in openclaw skills; do
-            echo "Processing $repo..."
+            echo "----------------------------------------"
+            echo "开始处理仓库: $repo"
             
-            # 1. 克隆 GitHub 源码 (使用 --depth 1 提速)
-            git clone --depth 1 https://github.com/openclaw/$repo.git $repo
+            # 克隆 GitHub 源码 (只取最新一层，速度最快)
+            git clone --depth 1 https://github.com/openclaw/$repo.git $repo_folder
             
-            cd $repo
+            cd $repo_folder
             
-            # 2. 强制使用 HTTPS + Token 格式添加远程地址 (这步最关键，彻底避开 SSH)
-            git remote add gitee https://萌浪兔:${GITEE_TOKEN}@gitee.com/openclawcn/$repo.git
+            # 【核心修正】使用 x-access-token 占位符，彻底解决中文用户名 403 报错
+            # 这行代码在日志中会被自动脱敏，保护你的隐私
+            git remote add gitee "https://x-access-token:${GITEE_TOKEN}@gitee.com/openclawcn/$repo.git"
             
-            # 3. 强制推送到 Gitee 的 main 分支
-            # 既然你本地手动推的是 master:main，这里我们也保持一致
-            git push -f gitee main || git push -f gitee master:main
+            # 自动获取当前分支名 (main 或 master)
+            CURRENT_BRANCH=$(git branch --show-current)
+            echo "检测到当前分支为: $CURRENT_BRANCH"
+            
+            # 执行强制推送：将本地当前分支推送到 Gitee 的 main，如果失败则尝试推送到 master
+            echo "正在推送到 Gitee..."
+            git push -f gitee $CURRENT_BRANCH:main || git push -f gitee $CURRENT_BRANCH:master
             
             cd ..
-            echo "$repo sync completed!"
+            # 清理空间，准备处理下一个
+            rm -rf $repo_folder
+            echo "$repo 同步完成！"
           done
