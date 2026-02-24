@@ -4,7 +4,7 @@ on:
   schedule:
     # 每天北京时间早上 8 点自动同步一次
     - cron: '0 0 * * *'
-  workflow_dispatch: # 允许你随时手动点击运行
+  workflow_dispatch: # 允许手动点击运行
 
 jobs:
   sync-repo:
@@ -13,17 +13,14 @@ jobs:
       - name: Mirror the GitHub repo to Gitee
         uses: Yikun/hub-mirror-action@master
         with:
-          # 1. 原项目的 GitHub 用户名。如果是要同步 openclaw，请确认原作者的 ID
           src: github/openclaw
-          # 2. 你的 Gitee 用户名，这里填写 OpenclawCN
           dst: gitee/openclawcn
           dst_key: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
           dst_token: ${{ secrets.GITEE_TOKEN }}
-          # 3. 你想要同步的仓库名称。确认你的 Gitee 下已经建立了一个叫 OpenClaw 的空仓库
           static_list: "openclaw"
           force_update: true
           debug: true
           clone_style: "https"
-          depth: 1  # 核心：只同步最近一次提交，体积瞬间缩小
-          timeout: '2h' # 虽然缩小了，时间还是给足
-          lfs: true                # 核心：开启 LFS 支持，防止大文件卡死
+          # 注意：删除了不支持的 depth 参数
+          timeout: '3h'       # 既然 1.5 小时不够，我们直接给到 3 小时上限
+          lfs: true           # 开启大文件支持
