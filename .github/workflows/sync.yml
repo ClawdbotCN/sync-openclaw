@@ -2,9 +2,8 @@ name: Auto Sync to Gitee
 
 on:
   schedule:
-    # 每天北京时间早上 8 点自动同步一次 (UTC 0:00)
     - cron: '0 0 * * *'
-  workflow_dispatch: # 允许手动点击运行
+  workflow_dispatch:
 
 jobs:
   sync-repo:
@@ -12,37 +11,35 @@ jobs:
     steps:
       - name: Sync OpenClaw and Skills to Gitee
         env:
-          # 从仓库配置中读取 Token
           GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
         run: |
           # 1. 配置 Git 身份
           git config --global user.email "lanxidj@vip.qq.com"
           git config --global user.name "OpenclawCN"
 
-          # 2. 循环处理仓库列表
-          for repo in openclaw skills; do
-            echo "----------------------------------------"
-            echo "开始处理仓库: $repo"
-            
-            # 克隆 GitHub 源码 (只取最新一层，速度最快)
-            git clone --depth 1 https://github.com/openclaw/$repo.git $repo_folder
-            
-            cd $repo_folder
-            
-            # 【核心修正】使用 x-access-token 占位符，彻底解决中文用户名 403 报错
-            # 这行代码在日志中会被自动脱敏，保护你的隐私
-            git remote add gitee "https://x-access-token:${GITEE_TOKEN}@gitee.com/openclawcn/$repo.git"
-            
-            # 自动获取当前分支名 (main 或 master)
-            CURRENT_BRANCH=$(git branch --show-current)
-            echo "检测到当前分支为: $CURRENT_BRANCH"
-            
-            # 执行强制推送：将本地当前分支推送到 Gitee 的 main，如果失败则尝试推送到 master
-            echo "正在推送到 Gitee..."
-            git push -f gitee $CURRENT_BRANCH:main || git push -f gitee $CURRENT_BRANCH:master
-            
-            cd ..
-            # 清理空间，准备处理下一个
-            rm -rf $repo_folder
-            echo "$repo 同步完成！"
-          done
+          # ----------------------------------------
+          # 处理第一个仓库: openclaw
+          # ----------------------------------------
+          echo "正在处理 openclaw..."
+          git clone --depth 1 https://github.com/openclaw/openclaw.git temp_openclaw
+          cd temp_openclaw
+          git remote add gitee "https://x-access-token:${GITEE_TOKEN}@gitee.com/openclawcn/openclaw.git"
+          # 自动识别分支并推送
+          CUR_BRANCH=$(git branch --show-current)
+          git push -f gitee $CUR_BRANCH:main || git push -f gitee $CUR_BRANCH:master
+          cd ..
+          rm -rf temp_openclaw
+          echo "openclaw 同步完成！"
+
+          # ----------------------------------------
+          # 处理第二个仓库: skills
+          # ----------------------------------------
+          echo "正在处理 skills..."
+          git clone --depth 1 https://github.com/openclaw/skills.git temp_skills
+          cd temp_skills
+          git remote add gitee "https://x-access-token:${GITEE_TOKEN}@gitee.com/openclawcn/skills.git"
+          CUR_BRANCH=$(git branch --show-current)
+          git push -f gitee $CUR_BRANCH:main || git push -f gitee $CUR_BRANCH:master
+          cd ..
+          rm -rf temp_skills
+          echo "skills 同步完成！"
