@@ -2,7 +2,8 @@ name: Auto Sync to Gitee
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    # UTC 23:30 = 北京时间早上 7:30。错峰排队，稳稳当当！
+    - cron: '30 23 * * *'
   workflow_dispatch:
 
 jobs:
