@@ -47,22 +47,22 @@ jobs:
           # ----------------------------------------
           # 处理: skills
           # ----------------------------------------
-          echo "========================================"
-          echo "1. 正在浅克隆 skills (仅拉取最新代码，不拉历史记录，避免超限)..."
+          #echo "========================================"
+          #echo "1. 正在浅克隆 skills (仅拉取最新代码，不拉历史记录，避免超限)..."
           # 【关键修改】添加了 --depth 1 参数
-          git clone --depth 1 --progress https://github.com/openclaw/skills.git temp_skills
-          cd temp_skills
+          #git clone --depth 1 --progress https://github.com/openclaw/skills.git temp_skills
+          #cd temp_skills
           
-          echo "2. 配置 Gitee 远程地址..."
-          git remote add gitee "https://${GITEE_USER}:${GITEE_TOKEN}@gitee.com/openclawcn/skills.git"
+          #echo "2. 配置 Gitee 远程地址..."
+          #git remote add gitee "https://${GITEE_USER}:${GITEE_TOKEN}@gitee.com/openclawcn/skills.git"
           
-          echo "3. 开始向 Gitee 推送 skills (开启详细日志)..."
-          CUR_BRANCH=$(git branch --show-current)
+          #echo "3. 开始向 Gitee 推送 skills (开启详细日志)..."
+          #CUR_BRANCH=$(git branch --show-current)
           # 因为是浅克隆，推送时可能需要强制覆盖目标仓库的历史
-          git push -v --progress -f gitee $CUR_BRANCH:main || git push -v --progress -f gitee $CUR_BRANCH:master
-          cd ..
-          rm -rf temp_skills
-          echo "✅ skills 同步完成！"
+          #git push -v --progress -f gitee $CUR_BRANCH:main || git push -v --progress -f gitee $CUR_BRANCH:master
+          #cd ..
+          #rm -rf temp_skills
+          #echo "✅ skills 同步完成！"
 
           # ----------------------------------------
           # 处理: hermes-agent
